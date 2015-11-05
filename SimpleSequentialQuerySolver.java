@@ -3,9 +3,12 @@ public class SimpleSequentialQuerySolver implements QuerySolver {
 	private CensusData data;
 	private Rectangle corners;
 	private int rowCount, columnCount;
+	private float rowLength, columnLength;
+	private int cachedPopulationCount;
 
-	public SimpleSequentialQuerySolver(int rowCount, int columnCount){
+	public SimpleSequentialQuerySolver(){
 		//idk if i need a constructor
+		cachedPopulationCount = -1;
 	}
 
 	public void setDimensions(int rowCount, int columnCount){
@@ -19,11 +22,50 @@ public class SimpleSequentialQuerySolver implements QuerySolver {
 
 	public void reindex(){
 		corners = findCorners(data);
+		rowLength = (corners.top - corners.bottom) / rowCount;
+		columnLength = (corners.right - corners.left) / columnCount;
 	}
 
 	public int getPopulation(int north, int east, int west, int south){
 		//for simple implementation, first find float boundaries
-		float
+		float westBound = west * columnLength + corners.left;
+		float eastBound = east * columnLength + corners.left;
+		float northBound = north * rowLength + corners.bottom;
+		float southBound = south * rowLength + corners.bottom;
+
+		System.out.println("West bound: " + westBound);
+		System.out.println("East bound: " + eastBound);
+		System.out.println("North bound: " + northBound);
+		System.out.println("South bound: " + southBound);
+
+		System.out.println("row length: " + rowLength);
+		System.out.println("column length: " + columnLength);
+
+		System.out.println("westmost: " + corners.left);
+		System.out.println("southmost: " + corners.bottom);
+
+		int populationCount = 0;
+		for(int i = 0; i < data.data_size; i++){
+			CensusGroup group = data.get(i);
+			if(group.latitude > southBound &&
+					group.latitude < northBound &&
+					group.longitude > westBound &&
+					group.longitude < eastBound){
+						populationCount += group.population;
+					}
+		}
+		return populationCount;
+	}
+
+	public int getPopulation(){
+		if(cachedPopulationCount != -1){ return cachedPopulationCount; }
+		int populationCount = 0;
+		for(int i = 0; i < data.data_size; i++){
+			CensusGroup group = data.get(i);
+			populationCount += group.population;
+		}
+		cachedPopulationCount = populationCount;
+		return populationCount;
 	}
 
 
