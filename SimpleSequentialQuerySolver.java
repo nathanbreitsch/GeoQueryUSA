@@ -29,28 +29,17 @@ public class SimpleSequentialQuerySolver implements QuerySolver {
 	public int getPopulation(int north, int east, int west, int south){
 		//for simple implementation, first find float boundaries
 		float westBound = west * columnLength + corners.left;
-		float eastBound = east * columnLength + corners.left;
-		float northBound = north * rowLength + corners.bottom;
+		float eastBound = (east + 1) * columnLength + corners.left;
+		float northBound = (north + 1) * rowLength + corners.bottom;
 		float southBound = south * rowLength + corners.bottom;
-
-		System.out.println("West bound: " + westBound);
-		System.out.println("East bound: " + eastBound);
-		System.out.println("North bound: " + northBound);
-		System.out.println("South bound: " + southBound);
-
-		System.out.println("row length: " + rowLength);
-		System.out.println("column length: " + columnLength);
-
-		System.out.println("westmost: " + corners.left);
-		System.out.println("southmost: " + corners.bottom);
 
 		int populationCount = 0;
 		for(int i = 0; i < data.data_size; i++){
 			CensusGroup group = data.get(i);
-			if(group.latitude > southBound &&
-					group.latitude < northBound &&
-					group.longitude > westBound &&
-					group.longitude < eastBound){
+			if(group.latitude >= southBound &&
+					group.latitude <= northBound &&
+					group.longitude >= westBound &&
+					group.longitude <= eastBound){
 						populationCount += group.population;
 					}
 		}
@@ -76,14 +65,14 @@ public class SimpleSequentialQuerySolver implements QuerySolver {
 		}
 		CensusGroup initial = data.get(0);
 		//rectangle constructor: left, right, top, bottom
-		float xInit = initial.latitude;
-		float yInit = initial.longitude;
+		float xInit = initial.longitude;
+		float yInit = initial.latitude;
 		Rectangle corners = new Rectangle(xInit, xInit, yInit, yInit);
 		for(int i = 1; i < data.data_size; i++){
 			if(data.get(i).longitude < corners.left){ corners.left = data.get(i).longitude; }
-			if(data.get(i).longitude > corners.right){ corners.right = data.get(i).longitude; }
+			else if(data.get(i).longitude > corners.right){ corners.right = data.get(i).longitude; }
 			if(data.get(i).latitude < corners.bottom){ corners.bottom = data.get(i).latitude; }
-			if(data.get(i).latitude > corners.top){ corners.top = data.get(i).latitude; }
+			else if(data.get(i).latitude > corners.top){ corners.top = data.get(i).latitude; }
 		}
 		return corners;
 	}

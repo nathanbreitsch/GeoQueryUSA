@@ -28,7 +28,7 @@ public class PopulationQuery {
 														(100.0 * queryPopulation / totalPopulation));
 			}
 			catch(Exception e){
-				System.out.println(e.toString());
+				//System.out.println(e.toString());
 				break;
 			}
 		}
