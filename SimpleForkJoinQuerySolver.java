@@ -20,16 +20,17 @@ public class SimpleForkJoinQuerySolver implements QuerySolver {
     float southBound = south * rowLength;
 
     List<CensusGroup> censusGroups = Arrays.asList(data.data).subList(0, data.data_size);
-    return forkJoinPool.invoke(new QueryTask(censusGroups, northBound, eastBound, westBound, southBound));
+    CensusGroupAggregator aggregator = new QueryPopulationAggregator(north, east, west, south);
+    return forkJoinPool.invoke(new CensusGroupListDivisionTask(censusGroups, aggregator));
   }
 
   public int getPopulation(){
     List<CensusGroup> censusGroups = Arrays.asList(data.data).subList(0, data.data_size);
-    return forkJoinPool.invoke(new PopulationFindingTask(censusGroups));
+    return forkJoinPool.invoke(new CensusGroupListDivisionTask(censusGroups, new TotalPopulationAggregator()));
   }
 
   public void reindex(){
-    //corners = findCorners(data);
+    // corners = findCorners(data);
 		rowLength = (corners.top - corners.bottom) / rowCount;
 		columnLength = (corners.right - corners.left) / columnCount;
   }
@@ -43,104 +44,100 @@ public class SimpleForkJoinQuerySolver implements QuerySolver {
     this.data = data;
   }
 
-  private class QueryTask extends RecursiveTask<Integer> {
-    int granularity;
-    float northBound, eastBound, westBound, southBound;
-    List<censusGroups> censusGroups;
-    public QueryTask(censusGroups, northBound, eastBound, westBound, southBound){
+
+
+  private class CensusGroupListDivisionTask extends RecursiveTask<CensusGroupAggregator> {
+    int granularity = 100; //min size of data to warrent fork
+    List<CensusGroup> censusGroups;
+    RecursiveTask<Integer> conquerTask;
+    CensusGroupAggregator aggregator;
+
+    public CensusGroupListDivisionTask(List<CensusGroup> censusGroups, CensusGroupAggregator aggregator){
       this.censusGroups = censusGroups;
+      this.aggregator = aggregator;
+    }
+
+    protected CensusGroupAggregator compute(){
+
+      List< RecursiveTask<Integer> > forks = new ArrayList<>();
+      if(censusGroups.size() < granularity){
+        //do it serial
+        CensusGroupAggregationTask serial = new CensusGroupAggregationTask(censusGroups, aggregator);
+        forks.add(serial);
+        serial.fork();
+      }
+      else{
+        //fork
+        List<CensusGroup> leftData = censusGroups.subList(0, censusGroups.size() / 2);
+        List<CensusGroup> rightData = censusGroups.subList(censusGroups.size() / 2, censusGroups.size());
+        CensusGroupListDivisionTask left = new CensusGroupListDivisionTask(leftData, aggregator);
+        CensusGroupListDivisionTask right = new CensusGroupListDivisionTask(rightData, aggregator);
+        forks.add(left);
+        forks.add(right);
+        left.fork();
+        right.fork();
+      }
+
+      //do this generically somehow
+      int sum = 0;
+      //reduce
+      for(RecursiveTask<CensusGroupAggregator> task : forks){
+        sum += task.join();
+      }
+      return sum;
+    }
+
+  }
+
+  private class CensusGroupAggregationTask extends RecursiveTask<CensusGroupAggregator>{
+    List<CensusGroup> censusGroups;
+    CensusGroupAggregator aggregator;
+
+    public CensusGroupAggregationTask(List<CensusGroup> censusGroups, CensusGroupAggregator aggregator){
+      this.censusGroups = censusGroups;
+      this.aggregator = aggregator;
+    }
+
+    protected CensusGroupAggregator compute(){
+      aggregator.aggregate(censusGroups);
+      return aggregator;
+    }
+  }
+
+  private interface CensusGroupAggregator{
+    public void aggregate(List<CensusGroup> censusGroups);
+  }
+
+  private class TotalPopulationAggregator implements CensusGroupAggregator{
+    Private Integer sum;
+
+    public TotalPopulationAggregator(){
+      sum = 0;
+    }
+
+    public void aggregate(List<CensusGroup> censusGroups){
+      for(CensusGroup group : censusGroups){
+        sum += group.population;
+      }
+    }
+  }
+
+  private class QueryPopulationAggregator implements CensusGroupAggregator{
+    private float northBound, eastBound, westBound, southBound;
+    private Integer sum;
+
+    public QueryPopulationAggregator(float northBound, float eastBound, float westBound, float southBound){
       this.northBound = northBound;
       this.eastBound = eastBound;
       this.westBound = westBound;
       this.southBound = southBound;
+      sum = 0;
     }
 
-    public Integer compute(){
-      List< RecursiveTask<Integer> > forks = new ArrayList<>();
-      if(censusGroups.size() < granularity){
-        //do it serial
-        QueryTaskSerial serial = new QueryTaskSerial(censusGroups);
-        forks.add(serial);
-        serial.fork();
-      }
-      else{
-        //fork
-        List<CensusGroup> leftData = censusGroups.subList(0, censusGroups.size() / 2);
-        List<CensusGroup> rightData = censusGroups.subList(censusGroups.size() / 2, censusGroups.size());
-        PopulationFindingTask left = new PopulationFindingTask(leftData);
-        PopulationFindingTask right = new PopulationFindingTask(rightData);
-        forks.add(left);
-        forks.add(right);
-        left.fork();
-        right.fork();
-      }
-
-      int sum = 0;
-      //reduce
-      for(RecursiveTask<Integer> task : forks){
-        sum += task.join();
-      }
-      return sum;
-    }
-  }
-
-  private class CornerFindingTask extends RecursiveTask<Rectangle> {
-    public Rectangle compute(){
-      return new Rectangle(0,0,0,0);
-    }
-  }
-
-  private class CensusGroupListDivisionTask extends RecursiveTask<Integer> {
-    int granularity = 100; //min size of data to warrent fork
-    List<CensusGroup> censusGroups;
-    RecursiveTask<Integer> conquerTask;
-    public PopulationFindingTask(List<CensusGroup> censusGroups, RecursiveTask<Integer> conquerTask){
-      this.censusGroups = censusGroups;
-    }
-
-    protected Integer compute(){
-
-      List< RecursiveTask<Integer> > forks = new ArrayList<>();
-      if(censusGroups.size() < granularity){
-        //do it serial
-        PopulationFindingTaskSerial serial = new PopulationFindingTaskSerial(censusGroups);
-        forks.add(serial);
-        serial.fork();
-      }
-      else{
-        //fork
-        List<CensusGroup> leftData = censusGroups.subList(0, censusGroups.size() / 2);
-        List<CensusGroup> rightData = censusGroups.subList(censusGroups.size() / 2, censusGroups.size());
-        PopulationFindingTask left = new PopulationFindingTask(leftData);
-        PopulationFindingTask right = new PopulationFindingTask(rightData);
-        forks.add(left);
-        forks.add(right);
-        left.fork();
-        right.fork();
-      }
-
-      int sum = 0;
-      //reduce
-      for(RecursiveTask<Integer> task : forks){
-        sum += task.join();
-      }
-      return sum;
-    }
-
-  }
-
-  private class PopulationFindingTaskSerial extends RecursiveTask<Integer>{
-    List<CensusGroup> censusGroups;
-    public PopulationFindingTaskSerial(List<CensusGroup> censusGroups){
-      this.censusGroups = censusGroups;
-    }
-
-    protected Integer compute(){
-      int sum = 0;
+    public void aggregate(List<CensusGroup> censusGroups){
       for(CensusGroup group : censusGroups){
         sum += group.population;
       }
-      return sum;
     }
   }
 
