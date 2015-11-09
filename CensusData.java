@@ -22,6 +22,7 @@ public class CensusData {
 		}
 	}
 
+
 	public void add(int population, float latitude, float longitude) {
 		if(data_size == data.length) { // resize
 			CensusGroup[] new_data = new CensusGroup[data.length*2];

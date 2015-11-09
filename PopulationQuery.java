@@ -102,6 +102,9 @@ public class PopulationQuery {
 		if(version.equals("-v1")){
 			querySolver = new SimpleSequentialQuerySolver();
 		}
+		else if(version.equals("-v2")){
+			querySolver = new SimpleForkJoinQuerySolver();
+		}
 		else{
 			System.out.println("what the fuck is " + version + "?");
 			return;
