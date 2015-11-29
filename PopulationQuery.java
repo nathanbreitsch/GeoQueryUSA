@@ -3,7 +3,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
-import SimpleForkJoin.*;
 
 public class PopulationQuery {
 	// next four constants are relevant to parsing
@@ -106,6 +105,9 @@ public class PopulationQuery {
 		}
 		else if(version.equals("-v2")){
 			querySolver = new SimpleForkJoinQuerySolver();
+		}
+		else if(version.equals("-v3")){
+			querySolver = new GridSequentialQuerySolver();
 		}
 		else{
 			System.out.println("what is " + version + "?");
