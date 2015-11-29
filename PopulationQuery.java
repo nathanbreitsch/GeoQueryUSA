@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
+import SimpleForkJoin.*;
 
 public class PopulationQuery {
 	// next four constants are relevant to parsing
@@ -24,6 +25,7 @@ public class PopulationQuery {
 				int queryPopulation = solver.getPopulation(north, east, west, south);
 				int totalPopulation = solver.getPopulation();
 				System.out.println("Query Population: " + queryPopulation +
+														"\n Total Population: " + totalPopulation +
 														"\nPercent of Total Population: " +
 														(100.0 * queryPopulation / totalPopulation));
 			}
@@ -106,7 +108,7 @@ public class PopulationQuery {
 			querySolver = new SimpleForkJoinQuerySolver();
 		}
 		else{
-			System.out.println("what the fuck is " + version + "?");
+			System.out.println("what is " + version + "?");
 			return;
 		}
 		querySolver.setDimensions(xResolution, yResolution);

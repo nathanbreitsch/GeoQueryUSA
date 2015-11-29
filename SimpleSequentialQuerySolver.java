@@ -1,10 +1,11 @@
+
 public class SimpleSequentialQuerySolver implements QuerySolver {
 
-	private CensusData data;
-	private Rectangle corners;
-	private int rowCount, columnCount;
-	private float rowLength, columnLength;
-	private int cachedPopulationCount;
+	protected CensusData data;
+	protected Rectangle corners;
+	protected int rowCount, columnCount;
+	protected float rowLength, columnLength;
+	protected int cachedPopulationCount;
 
 	public SimpleSequentialQuerySolver(){
 		//idk if i need a constructor

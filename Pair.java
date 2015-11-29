@@ -1,6 +1,4 @@
 
-
-
 public class Pair<T,S> {
 	private T elt1;
 	private S elt2;

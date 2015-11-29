@@ -1,4 +1,10 @@
-import java.tuil.concurrent.RecursiveTask;
+
+import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.ForkJoinPool;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 
 public class SimpleForkJoinCornerFinder extends RecursiveTask<Rectangle>{
   public Integer granularity = 100;
@@ -10,30 +16,31 @@ public class SimpleForkJoinCornerFinder extends RecursiveTask<Rectangle>{
 
   protected Rectangle compute(){
     if(censusGroups.size() < granularity){
-      Rectangle bounds = new Rectangle();
-      bounds.left = bounds.bottom = Integer.MAX_VALUE;
-      bounds.right = bounds.top = Integer.MIN_VALUE;
+      //l,r,t,b
+      Rectangle bounds = new Rectangle(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
+                                       Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+
       for(CensusGroup cg : censusGroups){
         bounds.left = Math.min(bounds.left, cg.longitude);
         bounds.right = Math.max(bounds.right, cg.longitude);
         bounds.bottom = Math.min(bounds.top, cg.latitude);
         bounds.top = Math.max(bounds.top, cg.latitude);
       }
-      return sum;
+      return bounds;
     }
     else{
       //divide into two forks
       List<CensusGroup> leftData = censusGroups.subList(0, censusGroups.size() / 2);
       List<CensusGroup> rightData = censusGroups.subList(censusGroups.size() / 2, censusGroups.size());
-      CensusGroupListDivisionTask left = new CensusGroupListDivisionTask(leftData, aggregator);
-      CensusGroupListDivisionTask right = new CensusGroupListDivisionTask(rightData, aggregator);
-      forks.add(left);
-      forks.add(right);
+      SimpleForkJoinCornerFinder left = new SimpleForkJoinCornerFinder(leftData);
+      SimpleForkJoinCornerFinder right = new SimpleForkJoinCornerFinder(rightData);
+      //forks.add(left);
+      //forks.add(right);
       left.fork();
       right.fork();
       Rectangle leftBounds = left.join();
-      int rightBounds = right.join();
-      Rectangle rtn = new Rectangle();
+      Rectangle rightBounds = right.join();
+      Rectangle rtn = new Rectangle(0,0,0,0);
       rtn.left = Math.min(leftBounds.left, rightBounds.left);
       rtn.right = Math.max(leftBounds.right, rightBounds.right);
       rtn.bottom = Math.min(leftBounds.bottom, leftBounds.bottom);
