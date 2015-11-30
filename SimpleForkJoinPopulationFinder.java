@@ -6,14 +6,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SimpleForkJoinPopulationFinder extends RecursiveTask<Integer>{
-  public Integer granularity = 100;
+  protected Integer granularity;
   List<CensusGroup> censusGroups;
 
-  public SimpleForkJoinPopulationFinder(List<CensusGroup> censusGroups){
+  public SimpleForkJoinPopulationFinder(List<CensusGroup> censusGroups, Integer granularity){
     this.censusGroups = censusGroups;
+    this.granularity = granularity;
   }
 
   protected Integer compute(){
+
     if(censusGroups.size() < granularity){
       //do it serial
       int sum = 0;

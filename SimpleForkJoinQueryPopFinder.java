@@ -6,13 +6,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SimpleForkJoinQueryPopFinder extends RecursiveTask<Integer>{
-  public Integer granularity = 100;
+  protected Integer granularity;
   List<CensusGroup> censusGroups;
   Rectangle query;
 
-  public SimpleForkJoinQueryPopFinder(List<CensusGroup> censusGroups, Rectangle query){
+  public SimpleForkJoinQueryPopFinder(List<CensusGroup> censusGroups, Rectangle query, Integer granularity){
     this.censusGroups = censusGroups;
     this.query = query;
+    this.granularity = granularity;
   }
 
   protected Integer compute(){

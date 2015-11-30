@@ -45,7 +45,7 @@ public class GridSequentialQuerySolver extends SimpleSequentialQuerySolver{
       int col = rowcol.getElementB();
       grid[row][col] += cg.population;
     }
-    printGrid();
+
   }
 
   protected void aggregateGrid(){
@@ -64,9 +64,7 @@ public class GridSequentialQuerySolver extends SimpleSequentialQuerySolver{
         if(curRow > 0 && curColumn > 0){ grid[curRow][curColumn] -= grid[curRow - 1][curColumn - 1]; }
       }
     }
-    System.out.println();
-    System.out.println();
-    printGrid();
+
   }
 
   private void printGrid(){

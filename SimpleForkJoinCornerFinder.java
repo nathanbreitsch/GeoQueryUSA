@@ -7,14 +7,16 @@ import java.util.Arrays;
 
 
 public class SimpleForkJoinCornerFinder extends RecursiveTask<Rectangle>{
-  public Integer granularity = 100;
+  protected Integer granularity;
   List<CensusGroup> censusGroups;
 
-  public SimpleForkJoinCornerFinder(List<CensusGroup> censusGroups){
+  public SimpleForkJoinCornerFinder(List<CensusGroup> censusGroups, Integer granularity){
     this.censusGroups = censusGroups;
+    this.granularity = granularity;
   }
 
   protected Rectangle compute(){
+    System.out.println(granularity);
     if(censusGroups.size() < granularity){
       //l,r,t,b
       Rectangle bounds = new Rectangle(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,

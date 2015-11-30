@@ -11,6 +11,7 @@ public class SimpleForkJoinQuerySolver implements QuerySolver {
 	private int rowCount, columnCount;
 	private float rowLength, columnLength;
 	private int cachedPopulationCount;
+  int granularity = 100;
 
   static ForkJoinPool forkJoinPool = new ForkJoinPool();
 
@@ -23,12 +24,12 @@ public class SimpleForkJoinQuerySolver implements QuerySolver {
     List<CensusGroup> censusGroups = Arrays.asList(data.data).subList(0, data.data_size);
     //l,r,t,b
     Rectangle query = new Rectangle(westBound, eastBound, northBound, southBound);
-    return forkJoinPool.invoke(new SimpleForkJoinQueryPopFinder(censusGroups, query));
+    return forkJoinPool.invoke(new SimpleForkJoinQueryPopFinder(censusGroups, query, granularity));
   }
 
   public int getPopulation(){
     List<CensusGroup> censusGroups = Arrays.asList(data.data).subList(0, data.data_size);
-    return forkJoinPool.invoke(new SimpleForkJoinPopulationFinder(censusGroups));
+    return forkJoinPool.invoke(new SimpleForkJoinPopulationFinder(censusGroups, granularity));
   }
 
   public void reindex(){
@@ -39,8 +40,7 @@ public class SimpleForkJoinQuerySolver implements QuerySolver {
 
   private Rectangle findCorners(){
     List<CensusGroup> censusGroups = Arrays.asList(data.data).subList(0, data.data_size);
-    System.out.println(data.data_size);
-    return forkJoinPool.invoke(new SimpleForkJoinCornerFinder(censusGroups));
+    return forkJoinPool.invoke(new SimpleForkJoinCornerFinder(censusGroups, granularity));
   }
 
   public void setDimensions(int rowCount, int columnCount){
