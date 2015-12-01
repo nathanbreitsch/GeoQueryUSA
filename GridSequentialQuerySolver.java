@@ -1,5 +1,3 @@
-
-
 public class GridSequentialQuerySolver extends SimpleSequentialQuerySolver{
   //rows go up north, down south
   //cols go up east, down west
@@ -27,7 +25,7 @@ public class GridSequentialQuerySolver extends SimpleSequentialQuerySolver{
      return grid[rowCount - 1][columnCount - 1];
 	}
 
-  protected Pair<Integer, Integer> getGridCoordinates(float lat, float lon){
+  public Pair<Integer, Integer> getGridCoordinates(float lat, float lon){
     //use rowLength, colLength
     int row = (int) Math.floor((lat - corners.bottom) / rowLength);
     int col = (int) Math.floor((lon - corners.left) / columnLength);

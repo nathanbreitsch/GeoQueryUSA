@@ -28,8 +28,8 @@ public class SimpleForkJoinPopulationFinder extends RecursiveTask<Integer>{
       //divide into two forks
       List<CensusGroup> leftData = censusGroups.subList(0, censusGroups.size() / 2);
       List<CensusGroup> rightData = censusGroups.subList(censusGroups.size() / 2, censusGroups.size());
-      SimpleForkJoinPopulationFinder left = new SimpleForkJoinPopulationFinder(leftData);
-      SimpleForkJoinPopulationFinder right = new SimpleForkJoinPopulationFinder(rightData);
+      SimpleForkJoinPopulationFinder left = new SimpleForkJoinPopulationFinder(leftData, granularity);
+      SimpleForkJoinPopulationFinder right = new SimpleForkJoinPopulationFinder(rightData, granularity);
       //forks.add(left);
       //forks.add(right);
       left.fork();

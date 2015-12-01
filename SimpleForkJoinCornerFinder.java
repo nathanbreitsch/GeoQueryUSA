@@ -16,7 +16,6 @@ public class SimpleForkJoinCornerFinder extends RecursiveTask<Rectangle>{
   }
 
   protected Rectangle compute(){
-    System.out.println(granularity);
     if(censusGroups.size() < granularity){
       //l,r,t,b
       Rectangle bounds = new Rectangle(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
@@ -34,8 +33,8 @@ public class SimpleForkJoinCornerFinder extends RecursiveTask<Rectangle>{
       //divide into two forks
       List<CensusGroup> leftData = censusGroups.subList(0, censusGroups.size() / 2);
       List<CensusGroup> rightData = censusGroups.subList(censusGroups.size() / 2, censusGroups.size());
-      SimpleForkJoinCornerFinder left = new SimpleForkJoinCornerFinder(leftData);
-      SimpleForkJoinCornerFinder right = new SimpleForkJoinCornerFinder(rightData);
+      SimpleForkJoinCornerFinder left = new SimpleForkJoinCornerFinder(leftData, granularity);
+      SimpleForkJoinCornerFinder right = new SimpleForkJoinCornerFinder(rightData, granularity);
       //forks.add(left);
       //forks.add(right);
       left.fork();

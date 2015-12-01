@@ -36,8 +36,8 @@ public class SimpleForkJoinQueryPopFinder extends RecursiveTask<Integer>{
       //divide into two forks
       List<CensusGroup> leftData = censusGroups.subList(0, censusGroups.size() / 2);
       List<CensusGroup> rightData = censusGroups.subList(censusGroups.size() / 2, censusGroups.size());
-      SimpleForkJoinQueryPopFinder left = new SimpleForkJoinQueryPopFinder(leftData, query);
-      SimpleForkJoinQueryPopFinder right = new SimpleForkJoinQueryPopFinder(rightData, query);
+      SimpleForkJoinQueryPopFinder left = new SimpleForkJoinQueryPopFinder(leftData, query, granularity);
+      SimpleForkJoinQueryPopFinder right = new SimpleForkJoinQueryPopFinder(rightData, query, granularity);
       //forks.add(left);
       //forks.add(right);
       left.fork();
