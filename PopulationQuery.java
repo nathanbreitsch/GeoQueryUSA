@@ -109,6 +109,12 @@ public class PopulationQuery {
 		else if(version.equals("-v3")){
 			querySolver = new GridSequentialQuerySolver();
 		}
+		else if(version.equals("-v4")){
+			querySolver = new GridForkJoinQuerySolver();
+		}
+		else if(version.equals("-v5")){
+			querySolver = new GridConcurrentQuerySolver();
+		}
 		else{
 			System.out.println("what is " + version + "?");
 			return;
